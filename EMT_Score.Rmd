@@ -1,0 +1,160 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(GSVA)
+library(GSEABase)
+library(msigdbr)
+```
+
+```{r}
+expr <- read_tsv("/Users/mqudratullah/Desktop/R/RNA-Seq_data_A549_YD54_RMC6236/RMC6236_vs_DMSO/RMC6236_vs_DMSO.all_gene.tsv")
+#expr<-read_tsv("/Users/mqudratullah/Desktop/R/RNA-Seq_data_A549_YD54_RMC6236/YD54_vs_DMSO/YD54_vs_DMSO.all_gene.tsv")
+#expr<-expr<-read_tsv("/Users/mqudratullah/Desktop/R/RNA-Seq_data_A549_YD54_RMC6236/Combo_vs_DMSO/Combo_vs_DMSO.all_gene.tsv")
+#expr<-expr<-read_tsv("/Users/mqudratullah/Desktop/R/RNA-Seq_data_A549_YD54_RMC6236/RMC6236_vs_Combo/RMC6236_vs_Combo.all_gene.tsv")
+#expr<-expr<-read_tsv("/Users/mqudratullah/Desktop/R/RNA-Seq_data_A549_YD54_RMC6236/YD54_vs_Combo/YD54_vs_Combo.all_gene.tsv")
+#expr<-expr<-read_tsv("/Users/mqudratullah/Desktop/R/RNA-Seq_data_A549_YD54_RMC6236/RMC6236_vs_YD54/RMC6236_vs_YD54.all_gene.tsv")
+genes = expr$Gene
+#genes = expr[,1]
+expr <- as.matrix(expr[,c(7,8,9,10,11,12)])
+rownames(expr)<-genes
+expr = log2(expr + 1)
+expr
+```
+
+```{r}
+rd <- read_tsv("/Users/mqudratullah/Desktop/R/RNA-Seq_data_A549_YD54_RMC6236/RMC6236_vs_DMSO/RMC6236_vs_DMSO.all_gene.tsv")
+yd<-read_tsv("/Users/mqudratullah/Desktop/R/RNA-Seq_data_A549_YD54_RMC6236/YD54_vs_DMSO/YD54_vs_DMSO.all_gene.tsv")
+cd<-expr<-read_tsv("/Users/mqudratullah/Desktop/R/RNA-Seq_data_A549_YD54_RMC6236/Combo_vs_DMSO/Combo_vs_DMSO.all_gene.tsv")
+```
+
+```{r}
+rd <- read_tsv("/Users/mqudratullah/Desktop/R/RNA-Seq_data_A549_YD54_RMC6236/RMC6236_vs_DMSO/RMC6236_vs_DMSO.all_gene.tsv")
+# Convert tibble to data.frame first
+rd <- as.data.frame(rd)
+# Set first column as row names
+rownames(rd) <- rd[, 1]
+# Remove first column
+rd <- rd[, c(-1,-2,-3,-4,-5,-6)]
+rd
+```
+
+```{r}
+yd <- as.data.frame(yd)
+# Set first column as row names
+rownames(yd) <- yd[, 1]
+# Remove first column
+yd <- yd[, c(-1,-2,-3,-4,-5,-6)]
+yd
+```
+
+
+```{r}
+cd <- as.data.frame(cd)
+# Set first column as row names
+rownames(cd) <- cd[, 1]
+# Remove first column
+cd <- cd[, c(-1,-2,-3,-4,-5,-6)]
+cd
+```
+
+
+```{r}
+rd = na.omit(rd[gene_list1,])
+yd = na.omit(yd[gene_list1,])
+cd = na.omit(cd[gene_list1,])
+df = cbind(rd,yd,cd)
+df=df[,c("DMSO_1","DMSO_2","DMSO_3","RMC6236_1","RMC6236_2","RMC6236_3","YD54_1","YD54_2","YD54_3","Combo_1","Combo_2","Combo_3")]
+df
+```
+
+```{r}
+rd <- rd[, c("Gene",
+             "DMSO_1", "DMSO_2", "DMSO_3",
+             "RMC6236_1", "RMC6236_2", "RMC6236_3")]
+
+rownames(rd) <- rd[, 1]
+rd <- rd[, -1]
+rd
+```
+
+```{r}
+yd = yd[,c("Gene","DMSO_1","DMSO_2","DMSO_3", "YD54_1","YD54_2","YD54_3")]
+```
+
+```{r}
+cd = cd[,c("Gene","DMSO_1","DMSO_2","DMSO_3", "Combo_1","Combo_2","Combo_3")]
+```
+
+
+```{r}
+gene_list1 =c("ZEB1","ZEB2","SNAI1","SNAI2","TWIST1","TWIST2","PRRX1","FOXC2","VIM","CDH2","FN1","AXL","SPARC","SERPINE1","TGFBI","THBS1","POSTN","LOXL2","MMP2","MMP9","MMP14","ITGB1","ITGAV","ITGB3","COL1A1","COL1A2","COL6A3","CDH1","EPCAM","KRT19")
+gene_list2 = c("AXL","CDH1","CDH2","EPCAM","FN1","ITGB1","LOXL2","SNAI1","SNAI2","SPARC","TWIST1","TWIST2","VIM","ZEB1","ZEB2")
+byers_genes <- c("ACTA2","AXL","CALD1","CDH2","CDH6","COL3A1","COL5A2",
+                 "COL6A1","COL6A2","COL6A3","CRLF1","DCN","FBLN2","FBN1",
+                 "FN1","FSTL1","GAS6","HSPB1","ITGA5","ITGB1","LAMC2","LUM",
+                 "MMP1","MMP2","MMP3","MMP9","MSRB3","MYL9","NNMT","NT5E",
+                 "PDGFRB","PMEPA1","POSTN","SERPINE1","SNAI2","SPARC",
+                 "TAGLN","TGFBI","THBS2","TIMP1","TIMP2","TIMP3","TPM1",
+                 "TPM2","TWIST1","VCAN","VIM","ZEB1","ZEB2",
+                 "CDH1","CLDN1","CLDN3","CLDN4","CLDN7","CRB3","EPCAM",
+                 "ESRP1","ESRP2","GRHL1","GRHL2","HNF1B","IRF6","KRT7",
+                 "KRT8","KRT18","KRT19","MARVELD2","MARVELD3","MUC1",
+                 "OCLN","OVOL1","OVOL2","PRSS8","RAB25","S100A14",
+                 "SCNN1A","ST14","TJP3")
+```
+
+```{r}
+expr
+```
+
+
+```{r}
+heat = expr[rownames(expr) %in% byers_genes,]
+heat_scaled = t(scale(t(heat)))
+```
+
+
+```{r}
+library(ComplexHeatmap)
+Heatmap(heat_scaled)
+```
+
+
+```{r}
+library(pheatmap)
+library(matrixStats)
+# Scale by row
+mat_scaled <- t(scale(t(heat)))
+# Annotation for samples
+annotation_col <- data.frame(Condition = c("RMC", "RMC","RMC","DMSO","DMSO","DMSO"))
+# Annotation colors
+ann_colors <- list(
+  Condition = c(
+    RMC = "red",
+    DMSO  = "blue"
+  )
+)
+#pdf("/Users/mqudratullah/Desktop/R/EMT.pdf",width = 10,height = 12)
+pheatmap(
+  mat_scaled,
+  scale = "row",
+  name = "zscore",
+  annotation_col = annotation_col,
+  annotation_colors = ann_colors,
+  color = colorRampPalette(
+    c("blue", "white", "red")
+  )(100),
+  show_rownames = TRUE,
+  show_colnames = TRUE,
+  cluster_rows = FALSE,
+  cluster_cols = FALSE,
+  fontsize_row = 8,
+  fontsize_col = 10,
+  main = "RMC vs DMSO"
+)
+#dev.off()
+```
