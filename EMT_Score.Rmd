@@ -11,6 +11,9 @@ suppressPackageStartupMessages({
   library(GSVA)
 library(GSEABase)
 library(msigdbr)
+library(pheatmap)
+library(matrixStats)
+library(ComplexHeatmap)
 })
 
 
@@ -94,11 +97,8 @@ expr
 heat = expr[rownames(expr) %in% byers_genes,]
 heat_scaled = t(scale(t(heat)))
 
-library(ComplexHeatmap)
 Heatmap(heat_scaled)
 
-library(pheatmap)
-library(matrixStats)
 # Scale by row
 mat_scaled <- t(scale(t(heat)))
 # Annotation for samples
